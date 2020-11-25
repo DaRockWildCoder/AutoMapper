@@ -16,10 +16,6 @@ namespace AutoMapper.Internal
 
     public static class CollectionMapperExpressionFactory
     {
-        static readonly MethodInfo IListClear = typeof(IList).GetMethod("Clear");
-        static readonly MethodInfo IListAdd = typeof(IList).GetMethod("Add");
-        static readonly PropertyInfo IListIsReadOnly = typeof(IList).GetProperty("IsReadOnly");
-
         public delegate Expression MapItem(IGlobalConfiguration configurationProvider, ProfileMap profileMap,
             Type sourceType, Type destType, Expression contextParam,
             out ParameterExpression itemParam);
@@ -68,13 +64,13 @@ namespace AutoMapper.Internal
             {
                 addItems = Condition(overMaxDepth, ExpressionFactory.Empty, addItems);
             }
-            var mapExpr = Block(addItems, destination);
             var clearMethod = isIList ? IListClear : destinationCollectionType.GetMethod("Clear");
             var checkNull = Block(new[] { newExpression, passedDestination },
                     Assign(passedDestination, destExpression),
                     assignNewExpression,
                     Call(destination, clearMethod),
-                    mapExpr );
+                    addItems,
+                    destination);
             if (memberMap != null)
             {
                 return checkNull;
@@ -92,7 +88,7 @@ namespace AutoMapper.Internal
             return Block(checkContext, checkNull);
             void UseDestinationValue()
             {
-                if(memberMap?.UseDestinationValue == true)
+                if (memberMap is { UseDestinationValue: true })
                 {
                     destination = passedDestination;
                     assignNewExpression = ExpressionFactory.Empty;
@@ -101,10 +97,10 @@ namespace AutoMapper.Internal
                 {
                     destination = newExpression;
                     var createInstance = passedDestination.Type.NewExpr(ifInterfaceType);
-                    var shouldCreateDestination = Equal(passedDestination, Null);
-                    if (memberMap?.CanBeSet == true)
+                    var shouldCreateDestination = ReferenceEqual(passedDestination, Null);
+                    if (memberMap is { CanBeSet: true })
                     {
-                        var isReadOnly = isIList ? Property(passedDestination, IListIsReadOnly) : Property(ToType(passedDestination, destinationCollectionType), "IsReadOnly");
+                        var isReadOnly = isIList ? Property(passedDestination, IListIsReadOnly) : ExpressionFactory.Property(ToType(passedDestination, destinationCollectionType), "IsReadOnly");
                         shouldCreateDestination = OrElse(shouldCreateDestination, isReadOnly);
                     }
                     assignNewExpression = Assign(newExpression, Condition(shouldCreateDestination, ToType(createInstance, passedDestination.Type), passedDestination));
@@ -140,9 +136,9 @@ namespace AutoMapper.Internal
             var destElementType = typeof(KeyValuePair<,>).MakeGenericType(destElementTypes);
 
             var keyExpr = MapExpression(configurationProvider, profileMap, typePairKey,
-                Property(itemParam, "Key"), contextParam);
+                ExpressionFactory.Property(itemParam, "Key"), contextParam);
             var valueExpr = MapExpression(configurationProvider, profileMap, typePairValue,
-                Property(itemParam, "Value"), contextParam);
+                ExpressionFactory.Property(itemParam, "Value"), contextParam);
             var keyPair = New(destElementType.GetConstructor(destElementTypes), keyExpr, valueExpr);
             return keyPair;
         }

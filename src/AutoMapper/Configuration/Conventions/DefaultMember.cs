@@ -11,7 +11,7 @@ namespace AutoMapper.Configuration.Conventions
     {
         public IParentSourceToDestinationNameMapper NameMapper { get; set; }
 
-        public bool MapDestinationPropertyToSource(ProfileMap options, TypeDetails sourceTypeDetails, Type destType, Type destMemberType, string nameToSearch, LinkedList<MemberInfo> resolvers, IMemberConfiguration parent = null, bool isReverseMap = false)
+        public bool MapDestinationPropertyToSource(ProfileMap options, TypeDetails sourceTypeDetails, Type destType, Type destMemberType, string nameToSearch, List<MemberInfo> resolvers, IMemberConfiguration parent = null, bool isReverseMap = false)
         {
             if (string.IsNullOrEmpty(nameToSearch))
             {
@@ -20,7 +20,7 @@ namespace AutoMapper.Configuration.Conventions
             var matchingMemberInfo = NameMapper.GetMatchingMemberInfo(sourceTypeDetails, destType, destMemberType, nameToSearch);
             if (matchingMemberInfo != null)
             {
-                resolvers.AddLast(matchingMemberInfo);
+                resolvers.Add(matchingMemberInfo);
                 return true;
             }
             return false;

@@ -15,7 +15,7 @@ namespace AutoMapper
         IncludedMember IncludedMember { get; }
         Type DestinationType { get; }
         string DestinationName { get; }
-        TypePair Types { get; }
+        TypePair Types();
         bool CanResolveValue { get; }
         bool Ignored { get; }
         bool Inline { get; set; }

@@ -26,7 +26,8 @@ namespace AutoMapper
             Type = type;
             Config = config;
         }
-        private ConstructorParameters[] GetConstructors() => GetConstructors(Type, Config).OrderByDescending(c => c.ParametersCount).ToArray(); 
+        private ConstructorParameters[] GetConstructors() => 
+            GetConstructors(Type, Config).Where(c=>c.ParametersCount > 0).OrderByDescending(c => c.ParametersCount).ToArray();
         public static IEnumerable<ConstructorParameters> GetConstructors(Type type, ProfileMap profileMap) =>
             type.GetDeclaredConstructors().Where(profileMap.ShouldUseConstructor).Select(c => new ConstructorParameters(c));
         public MemberInfo GetMember(string name)

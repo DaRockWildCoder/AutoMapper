@@ -36,13 +36,13 @@ namespace AutoMapper.Mappers
             new EnumToEnumMapper(),
             new ConvertMapper(),
             new StringMapper(),
-            new TypeConverterMapper(),
             new ConversionOperatorMapper("op_Implicit"),
             new ConversionOperatorMapper("op_Explicit"),
             new FromStringDictionaryMapper(),
             new ToStringDictionaryMapper(),
             new FromDynamicMapper(),
-            new ToDynamicMapper()
+            new ToDynamicMapper(),
+            new TypeConverterMapper(),// the most expensive
         };
     }
 }

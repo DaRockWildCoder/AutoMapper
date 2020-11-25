@@ -71,20 +71,7 @@ namespace AutoMapper
 
         public bool ContainsGenericParameters => SourceType.ContainsGenericParameters || DestinationType.ContainsGenericParameters;
 
-        public TypePair GetOpenGenericTypePair()
-        {
-            if(!IsGeneric)
-            {
-                return default;
-            }
-            var sourceGenericDefinition = SourceType.GetTypeDefinitionIfGeneric();
-            var destinationGenericDefinition = DestinationType.GetTypeDefinitionIfGeneric();
-            return new TypePair(sourceGenericDefinition, destinationGenericDefinition);
-        }
-
-        public bool IsEmpty => SourceType == null;
-
-        public TypePair CloseGenericTypes(TypePair closedTypes)
+        public TypePair CloseGenericTypes(in TypePair closedTypes)
         {
             var sourceArguments = closedTypes.SourceType.GetGenericArguments();
             var destinationArguments = closedTypes.DestinationType.GetGenericArguments();
@@ -100,6 +87,8 @@ namespace AutoMapper
             var closedDestinationType = DestinationType.IsGenericTypeDefinition ? DestinationType.MakeGenericType(destinationArguments) : DestinationType;
             return new TypePair(closedSourceType, closedDestinationType);
         }
+
+        public TypePair GetTypeDefinitionIfGeneric() => new TypePair(SourceType.GetTypeDefinitionIfGeneric(), DestinationType.GetTypeDefinitionIfGeneric());
 
         public void CheckIsDerivedFrom(in TypePair baseTypes)
         {
